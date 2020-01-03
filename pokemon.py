@@ -1,3 +1,5 @@
+import math
+
 class Pokemon:
   def __init__(self, name, health, ptype, level):
     self.name = name
@@ -12,13 +14,13 @@ class Pokemon:
     if self.health <= 0:
       self.health = 0
       self.knock_out()
-    print("{name} now has {health} health".format(name = self.name, health = self.health))
+    print("{name} now has {health} health.".format(name = self.name, health = self.health))
       
   def regain_health(self, health_gain):
     self.health += health_gain
     if self.health > self.max_health:
       self.health = self.max_health
-    print("{name} now has {health} health".format(name = self.name, health = self.health))
+    print("{name} now has {health} health.".format(name = self.name, health = self.health))
   
   def knock_out(self):
     self.is_knocked_out = True
@@ -32,23 +34,30 @@ class Pokemon:
       print("{name} is not knocked out and does not need reviving!".format(name = self.name))
       
   def attack(self, other_poke):
-    other_type = other_poke.type
-    if self.type == "Fire" and other_type == "Grass":
-      damage_mult = 2
-    elif self.type == "Grass" and other_type == "Fire":
-      damage_mult = 0.5
-    elif self.type == "Grass" and other_type == "Water":
-      damage_mult = 2
-    elif self.type == "Water" and other_type == "Grass":
-      damage_mult = 0.5
-    elif self.type == "Water" and other_type == "Fire":
-      damage_mult = 2
-    elif self.type == "Fire" and other_type == "Water":
-      damage_mult = 0.5
-      
-    damage_dealt = damage_mult * self.level
-    print("{attack_poke} deals {damage_dealt} to {def_poke}!".format(attack_poke = self.name, damage_dealt = damage_dealt, def_poke = other_poke.name))
-    pokemon.lose_health(damage_dealt)
+    if self.is_knocked_out == False:
+      other_type = other_poke.type
+      if self.type == "Fire" and other_type == "Fire":
+        damage_mult = 1
+      elif self.type == "Grass" and other_type == "Grass":
+        damage_mult = 1
+      elif self.type == "Water" and other_type == "Water":
+        damage_mult = 1
+      elif self.type == "Fire" and other_type == "Grass":
+        damage_mult = 2
+      elif self.type == "Grass" and other_type == "Fire":
+        damage_mult = 0.5
+      elif self.type == "Grass" and other_type == "Water":
+        damage_mult = 2
+      elif self.type == "Water" and other_type == "Grass":
+        damage_mult = 0.5
+      elif self.type == "Water" and other_type == "Fire":
+        damage_mult = 2
+      elif self.type == "Fire" and other_type == "Water":
+        damage_mult = 0.5
+
+      damage_dealt = math.ceil(damage_mult * self.level)
+      print("{attack_poke} deals {damage_dealt} damage to {def_poke}!".format(attack_poke = self.name, damage_dealt = damage_dealt, def_poke = other_poke.name))
+      other_poke.lose_health(damage_dealt)
     
 class Trainer:
   def __init__(self, name, potions, pokemons, current_pokemon):
@@ -69,8 +78,12 @@ class Trainer:
   def attack_trainer(self, other_trainer):
     their_pokemon = other_trainer.pokemons[other_trainer.current_pokemon]
     attack_poke = self.pokemons[self.current_pokemon]
+    print("{}'s {} has attacked {}'s {}".format(self.name, attack_poke.name, other_trainer.name, their_pokemon.name))
     attack_poke.attack(their_pokemon)
-    print("{trainer}'s {attack_poke} has attacked {other trainer}'s {their_pokemon}".format(trainer = self.name, attake_poke = attack_poke, other_trainer = other_trainer, their_pokemon = their_pokemon))
+    
+  def switch_pokemon(self, new_pokemon):
+    if new_pokemon < len(self.pokemons) and self.pokemons[new_pokemon].is_knocked_out == False:
+      self.current_pokemon = new_pokemon
 
 charzard = Pokemon("Charzard", 20, "Fire", 3)
 blastoise = Pokemon("Blastoise", 100, "Water", 10)
@@ -82,3 +95,9 @@ dylan = Trainer("Dylan", {"healx": 20, "healy": 40}, [charzard, blastoise], 0)
 nick = Trainer("Nick", {"healz": 50}, [leafeon, bulbasaur], 0)
 
 nick.use_potion("healz")
+nick.switch_pokemon(1)
+
+dylan.attack_trainer(nick)
+
+    
+  
